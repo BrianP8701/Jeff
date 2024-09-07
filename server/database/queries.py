@@ -4,6 +4,8 @@ db = Database()
 
 # Email CRUD operations
 def create_email(email: dict):
+    if 'embedding_id' in email:
+        del email['embedding_id']
     return db.create('emails', email)
 
 def read_email(email_id: int):
@@ -17,6 +19,8 @@ def delete_email(email_id: int):
 
 # File CRUD operations
 def create_file(file: dict):
+    if 'embedding_id' in file:
+        del file['embedding_id']
     return db.create('files', file)
 
 def read_file(file_id: int):
@@ -30,6 +34,8 @@ def delete_file(file_id: int):
 
 # Link CRUD operations
 def create_link(link: dict):
+    if 'embedding_id' in link:
+        del link['embedding_id']
     return db.create('links', link)
 
 def read_link(link_id: int):

@@ -2,6 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from .tables import Base, Email, File, Link
 import os
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Float
+from sqlalchemy import text
 
 class Database:
     _instance = None
@@ -13,17 +16,21 @@ class Database:
         return cls._instance
 
     def _init(self):
-        # Get the current directory of this file
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # Go up one level to the server directory
-        server_dir = os.path.dirname(current_dir)
-        # Construct the path to db.sqlite
-        db_path = os.path.join(server_dir, 'db.sqlite')
-        # Create the SQLite engine with the correct path
-        self.engine = create_engine(f'sqlite:///{db_path}', echo=True)
+        # PostgreSQL connection string
+        db_url = f"postgresql://jeff_user:jeff_password@localhost:5434/jeff_db"
+        self.engine = create_engine(db_url, echo=True)
         Base.metadata.create_all(self.engine)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self.session = self.SessionLocal()
+
+        # Create pgvector extension if available
+        try:
+            with self.engine.connect() as conn:
+                conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+                conn.commit()
+        except Exception as e:
+            print(f"Warning: Unable to create vector extension. Error: {e}")
+            print("Continuing without vector support. Some functionality may be limited.")
 
     def get_session(self) -> Session:
         return self.session
@@ -71,3 +78,7 @@ class Database:
         self.session.query(File).delete()
         self.session.query(Link).delete()
         self.session.commit()
+
+    def reset_tables(self):
+        Base.metadata.drop_all(self.engine)
+        Base.metadata.create_all(self.engine)

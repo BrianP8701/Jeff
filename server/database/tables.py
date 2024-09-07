@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Float
 
 Base = declarative_base()
 
@@ -11,7 +13,7 @@ class Email(Base):
     subject = Column(String(255), nullable=False)
     body = Column(Text, nullable=False)
     message_id = Column(String(255), unique=True, nullable=False)
-    embedding_id = Column(String(255), nullable=False)
+    embedding = Column(ARRAY(Float), nullable=True)
 
 class File(Base):
     __tablename__ = 'files'
@@ -20,7 +22,7 @@ class File(Base):
     name = Column(String(255), nullable=False)
     path = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
-    embedding_id = Column(String(255), nullable=False)
+    embedding = Column(ARRAY(Float), nullable=True)
 
 class Link(Base):
     __tablename__ = 'links'
@@ -29,4 +31,4 @@ class Link(Base):
     url = Column(String(255), nullable=False)
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
-    embedding_id = Column(String(255), nullable=False)
+    embedding = Column(ARRAY(Float), nullable=True)

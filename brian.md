@@ -27,3 +27,8 @@ class Link(BaseModel):
 and we want a vector database for each of these and each of the objects needs a corresponding vector embedding.
 
 for this project we can sqlite
+
+
+run 
+`cd infra && docker-compose up -d`
+to start the db

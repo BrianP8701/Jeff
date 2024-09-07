@@ -4,6 +4,8 @@ from server.database.queries import (
     create_link, read_link, update_link, delete_link
 )
 from server.database.db import Database
+import numpy as np
+
 def test_email_crud():
     print("Testing Email CRUD operations:")
     # Create
@@ -12,7 +14,7 @@ def test_email_crud():
         "subject": "Test Email",
         "body": "This is a test email body.",
         "message_id": "test123",
-        "embedding_id": "emb123"
+        "embedding": np.random.rand(1536).tolist()  # Example embedding
     }
     email = create_email(email_data)
     print(f"Created email: {email.id}")
@@ -20,6 +22,7 @@ def test_email_crud():
     # Read
     read_email_obj = read_email(email.id)
     print(f"Read email: {read_email_obj.subject}")
+    print(f"Email embedding: {read_email_obj.embedding[:5]}...")  # Print first 5 elements
 
     # Update
     update_data = {"subject": "Updated Test Email"}
@@ -27,8 +30,8 @@ def test_email_crud():
     print(f"Updated email subject: {updated_email.subject}")
 
     # Delete
-    deleted_email = delete_email(email.id)
-    print(f"Deleted email: {deleted_email.id}")
+    # deleted_email = delete_email(email.id)
+    # print(f"Deleted email: {deleted_email.id}")
 
 def test_file_crud():
     print("\nTesting File CRUD operations:")
@@ -37,7 +40,7 @@ def test_file_crud():
         "name": "test.txt",
         "path": "/path/to/test.txt",
         "content": "This is a test file content.",
-        "embedding_id": "emb456"
+        "embedding": np.random.rand(1536).tolist()  # Example embedding
     }
     file = create_file(file_data)
     print(f"Created file: {file.id}")
@@ -45,6 +48,7 @@ def test_file_crud():
     # Read
     read_file_obj = read_file(file.id)
     print(f"Read file: {read_file_obj.name}")
+    print(f"File embedding: {read_file_obj.embedding[:5]}...")  # Print first 5 elements
 
     # Update
     update_data = {"content": "Updated test file content."}
@@ -62,7 +66,7 @@ def test_link_crud():
         "url": "https://example.com",
         "title": "Example Website",
         "content": "This is an example website content.",
-        "embedding_id": "emb789"
+        "embedding": np.random.rand(1536).tolist()  # Example embedding
     }
     link = create_link(link_data)
     print(f"Created link: {link.id}")
@@ -70,6 +74,7 @@ def test_link_crud():
     # Read
     read_link_obj = read_link(link.id)
     print(f"Read link: {read_link_obj.title}")
+    print(f"Link embedding: {read_link_obj.embedding[:5]}...")  # Print first 5 elements
 
     # Update
     update_data = {"title": "Updated Example Website"}

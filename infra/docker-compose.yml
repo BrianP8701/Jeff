@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5434:5432"
+    volumes:
+      - jeff-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: jeff_user
+      POSTGRES_PASSWORD: jeff_password
+      POSTGRES_DB: jeff_db
+
+volumes:
+  jeff-db-data:
+    driver: local
