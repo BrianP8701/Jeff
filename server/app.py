@@ -3,7 +3,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from fastapi.routing import APIRoute
 from pydantic import BaseModel
 from .data_loaders.gmail import open_gmail_message
 from .apis.exa_client import get_contents_for_url
@@ -16,6 +17,15 @@ from server.database.tables import ContentType
 # Add this near the top of the file, after imports
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def use_route_names_as_operation_ids(app: FastAPI) -> None:
+    """
+    Simplify operation IDs so that generated API clients have simpler function
+    names.
+    """
+    for route in app.routes:
+        if isinstance(route, APIRoute):
+            route.operation_id = route.name
 
 class ItemType(str, Enum):
     FILE = "FILE"
@@ -61,6 +71,7 @@ async def search_contents(request: SearchContentsRequest):
     result = get_contents_for_url(request.url)
     return {"status": "success", "message": result}
 
+@app.get("/search", response_model=List[SearchResult])
 @app.post("/search", response_model=List[SearchResult])
 async def search(request: SearchRequest):
     logger.info(f"Search endpoint accessed with query: {request.query}")
@@ -83,6 +94,9 @@ async def search(request: SearchRequest):
         ))
     
     return search_results
+
+# Add this at the end of the file
+use_route_names_as_operation_ids(app)
 
 if __name__ == "__main__":
     import uvicorn
