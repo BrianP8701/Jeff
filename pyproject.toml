@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "jeff"
+version = "0.1.0"
+description = ""
+authors = ["Brian Przezdziecki <brianp8701@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+google-auth-oauthlib = "^1.2.1"
+google-auth-httplib2 = "^0.2.0"
+google-api-python-client = "^2.144.0"
+python-dotenv = "^1.0.1"
+pydantic = "^2.9.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
