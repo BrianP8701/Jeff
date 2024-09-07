@@ -4,6 +4,7 @@ from server.database.queries import (
     create_link, read_link, update_link, delete_link
 )
 from server.database.db import Database
+import server.database.tables as table_data
 import numpy as np
 
 def test_email_crud():
@@ -14,7 +15,7 @@ def test_email_crud():
         "subject": "Test Email",
         "body": "This is a test email body.",
         "message_id": "test123",
-        "embedding": np.random.rand(1536).tolist()  # Example embedding
+        "embedding": np.random.rand(table_data.EMBEDDING_DIMENSION).tolist()  # Example embedding
     }
     email, embedding = create_email(email_data)
     print(f"Created email: {email.id}")
@@ -22,7 +23,7 @@ def test_email_crud():
     # Read
     read_email_obj, read_embedding = read_email(email.id)
     print(f"Read email: {read_email_obj.subject}")
-    if read_embedding:
+    if read_embedding is not None:
         print(f"Email embedding: {read_embedding[:5]}...")  # Print first 5 elements
     else:
         print("No embedding found for this email.")
@@ -43,7 +44,7 @@ def test_file_crud():
         "name": "test.txt",
         "path": "/path/to/test.txt",
         "content": "This is a test file content.",
-        "embedding": np.random.rand(1536).tolist(),  # Example embedding
+        "embedding": np.random.rand(table_data.EMBEDDING_DIMENSION).tolist(),  # Example embedding
         "content_hash": "test123"
     }
     file = create_file(file_data)
@@ -70,7 +71,7 @@ def test_link_crud():
         "url": "https://example.com",
         "title": "Example Website",
         "content": "This is an example website content.",
-        "embedding": np.random.rand(1536).tolist()  # Example embedding
+        "embedding": np.random.rand(table_data.EMBEDDING_DIMENSION).tolist()  # Example embedding
     }
     link = create_link(link_data)
     print(f"Created link: {link.id}")

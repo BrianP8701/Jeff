@@ -23,6 +23,7 @@ pytesseract = "^0.3.13"
 pillow = "^10.4.0"
 pypdf2 = "^3.0.1"
 tiktoken = "^0.7.0"
+pgvector = "^0.3.2"
 
 [build-system]
 requires = ["poetry-core"]

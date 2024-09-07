@@ -2,10 +2,13 @@ from sqlalchemy import Column, Integer, String, Text, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import Float
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column
+from pgvector.sqlalchemy import Vector
 import enum
 
 Base = declarative_base()
+
+EMBEDDING_DIMENSION = 3072
 
 class ContentType(enum.Enum):
     EMAIL = 'email'
@@ -45,7 +48,7 @@ class Embedding(Base):
     __tablename__ = 'embeddings'
 
     id = Column(Integer, primary_key=True)
-    embedding = Column(ARRAY(Float), nullable=False)
+    embedding = mapped_column(Vector(EMBEDDING_DIMENSION))
     content_type = Column(Enum(ContentType), nullable=False)
     email_id = Column(Integer, ForeignKey('emails.id', ondelete='CASCADE'), nullable=True)
     file_id = Column(Integer, ForeignKey('files.id', ondelete='CASCADE'), nullable=True)
