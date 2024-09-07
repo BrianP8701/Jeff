@@ -37,10 +37,6 @@ def get_history(base_name = 'yush'):
     # Query the data
     # cur.execute("SELECT * FROM users")
     rows = cur.fetchall()
-    print(len(rows))
-    for row in rows[0:10]:
-        print(row)
-        row
 
     # Close the connection
     conn.close()

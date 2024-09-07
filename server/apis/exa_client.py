@@ -13,7 +13,7 @@ def get_contents_for_url(web_url):
     global url
     payload = {
         "ids": [web_url],
-        "text": {"includeHtmlTags": True},
+        "text": {"includeHtmlTags": False},
     }
     headers = {
         "accept": "application/json",
