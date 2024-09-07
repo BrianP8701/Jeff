@@ -3,6 +3,7 @@ from server.data_loaders.files import process_files
 from server.database.db import Database
 from server.constants import folder_path
 from sqlalchemy.exc import IntegrityError
+from server.data_loaders.history import get_history, process_and_store_history
 
 def ingest_recent_emails(days: int = 7):
     # Initialize the database
@@ -18,7 +19,7 @@ def ingest_recent_emails(days: int = 7):
                 try:
                     stored_emails = process_and_store_email(email)
                     for stored_email in stored_emails:
-                        print(f"Stored email chunk: {stored_email.id} - {stored_email.subject}")
+                        print(f"Stored email chunk: {stored_email['id']} - {stored_email['subject']}")
                 except IntegrityError:
                     print(f"Email already exists: {email.subject}")
                     db.session.rollback()
@@ -36,6 +37,14 @@ def ingest_files(folder_path: str):
         print(f"Error during file ingestion: {e}")
         db.session.rollback()
 
+def ingest_browser_history():
+    try:
+        history_entries = get_history()
+        process_and_store_history(history_entries)
+    except Exception as e:
+        print(f"Error during history ingestion: {e}")
+        db.session.rollback()
+
 if __name__ == "__main__":
     db = Database()
     
@@ -44,3 +53,6 @@ if __name__ == "__main__":
     
     # Ingest files
     ingest_files(folder_path)
+
+    # Ingest browser history
+    ingest_browser_history()

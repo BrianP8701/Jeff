@@ -1,8 +1,11 @@
 import sqlite3
 import time
 from datetime import datetime, timedelta
+from server.database.queries import create_link, get_link_by_url
+from server.embeddings.embed import get_embedding, chunk_content
+from server.apis.exa_client import get_contents_for_url
 
-def get_history(base_name = 'yush'):
+def get_history(base_name = 'brianprzezdziecki'):
       # Connect to the SQLite database (or create it if it doesn't exist)
     conn = sqlite3.connect(f'/Users/{base_name}/Library/Application Support/Google/Chrome/Default/History')
 
@@ -41,3 +44,32 @@ def get_history(base_name = 'yush'):
     # Close the connection
     conn.close()
     return rows
+
+def process_and_store_history(history_entries):
+    for entry in history_entries:
+        url = entry[1]  # Assuming the URL is the second item in the entry tuple
+        title = entry[2]  # Assuming the title is the third item in the entry tuple
+
+        existing_link = get_link_by_url(url)
+        if existing_link:
+            print(f"Link already exists: {url}")
+            continue
+
+        try:
+            content = get_contents_for_url(url)
+            chunks = chunk_content(content)
+
+            for i, chunk in enumerate(chunks):
+                embedding = get_embedding(chunk)
+
+                link_data = {
+                    "url": url,
+                    "title": f"{title} (chunk {i+1}/{len(chunks)})",
+                    "content": chunk,
+                    "embedding": embedding
+                }
+
+                stored_link = create_link(link_data)
+                print(f"Stored link chunk: {stored_link.id} - {stored_link.title}")
+        except Exception as e:
+            print(f"Error processing link {url}: {e}")

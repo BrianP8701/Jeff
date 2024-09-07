@@ -88,3 +88,6 @@ def get_file_by_path_and_content(file_path: str, content: str):
 
 def get_file_by_content_hash(content_hash: str):
     return db.session.query(File).filter_by(content_hash=content_hash).first()
+
+def get_link_by_url(url: str):
+    return db.session.query(Link).filter_by(url=url).first()

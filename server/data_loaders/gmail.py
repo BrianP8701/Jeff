@@ -112,7 +112,7 @@ if __name__ == "__main__":
             
             print("---")
 
-def process_and_store_email(email: Email):
+def process_and_store_email(email: Email) -> List[Dict]:
     # Create embedding from email content
     content_to_embed = f"{email.subject}\n\n{email.body}"
     chunks = chunk_content(content_to_embed)
@@ -132,6 +132,6 @@ def process_and_store_email(email: Email):
 
         # Store email in database
         stored_email = create_email(email_data)
-        stored_emails.append(stored_email)
+        stored_emails.append({"id": stored_email[0], "subject": email_data["subject"]})
     
     return stored_emails

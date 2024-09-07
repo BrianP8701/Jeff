@@ -5,6 +5,9 @@ import os
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import Float
 from sqlalchemy import text
+from sqlalchemy import func
+from pgvector.sqlalchemy import Vector
+from server.embeddings.embed import get_embedding
 
 class Database:
     _instance = None
@@ -89,3 +92,23 @@ class Database:
     def reset_tables(self):
         Base.metadata.drop_all(self.engine)
         Base.metadata.create_all(self.engine)
+
+    def similarity_search(self, query: str, limit: int = 5):
+        query_embedding = get_embedding(query)
+        
+        results = (
+            self.session.query(
+                Embedding.id,
+                Embedding.content_type,
+                func.coalesce(Email.message_id, File.path, Link.url).label("content_identifier"),
+                (Embedding.embedding.cosine_distance(query_embedding)).label("distance")
+            )
+            .outerjoin(Email, Embedding.email_id == Email.id)
+            .outerjoin(File, Embedding.file_id == File.id)
+            .outerjoin(Link, Embedding.link_id == Link.id)
+            .order_by("distance")
+            .limit(limit)
+            .all()
+        )
+        
+        return results

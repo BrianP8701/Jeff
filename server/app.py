@@ -8,8 +8,10 @@ from pydantic import BaseModel
 from .data_loaders.gmail import open_gmail_message
 from .apis.exa_client import get_contents_for_url
 from enum import Enum
-from typing import List
+from typing import List, Optional
 import logging
+from server.database.db import Database
+from server.database.tables import ContentType
 
 # Add this near the top of the file, after imports
 logging.basicConfig(level=logging.INFO)
@@ -32,6 +34,15 @@ class EmailOpenRequest(BaseModel):
 class SearchContentsRequest(BaseModel):
     url: str
 
+class SearchResult(BaseModel):
+    type: ItemType
+    value: str
+    distance: float
+
+class SearchRequest(BaseModel):
+    query: str
+    limit: Optional[int] = 5
+
 app = FastAPI()
 
 @app.get("/")
@@ -50,16 +61,28 @@ async def search_contents(request: SearchContentsRequest):
     result = get_contents_for_url(request.url)
     return {"status": "success", "message": result}
 
-@app.get("/search")
-async def search():
-    logger.info("Search endpoint accessed")
-    # This is a mock response. In a real scenario, you'd implement actual search logic here.
-    return SearchResponse(items=[
-        SearchItem(type=ItemType.FILE, value="/path/to/file1.txt"),
-        SearchItem(type=ItemType.FILE, value="/path/to/file2.pdf"),
-        SearchItem(type=ItemType.URL, value="https://www.example.com"),
-        SearchItem(type=ItemType.URL, value="https://www.google.com")
-    ])
+@app.post("/search", response_model=List[SearchResult])
+async def search(request: SearchRequest):
+    logger.info(f"Search endpoint accessed with query: {request.query}")
+    
+    db = Database()
+    results = db.similarity_search(request.query, request.limit)
+    
+    search_results = []
+    for result in results:
+        item_type = ItemType.FILE if result.content_type == ContentType.FILE else ItemType.URL
+        value = result.content_identifier
+        
+        if result.content_type == ContentType.EMAIL:
+            value = f"https://mail.google.com/mail/u/0/#search/rfc822msgid:{value}"
+        
+        search_results.append(SearchResult(
+            type=item_type,
+            value=value,
+            distance=result.distance
+        ))
+    
+    return search_results
 
 if __name__ == "__main__":
     import uvicorn

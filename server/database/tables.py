@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy import Float
 from sqlalchemy.orm import relationship, mapped_column
 from pgvector.sqlalchemy import Vector
 import enum

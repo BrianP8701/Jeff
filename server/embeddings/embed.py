@@ -7,7 +7,7 @@ load_dotenv()
 
 client = OpenAI()
 
-def num_tokens_from_string(string: str, model_name: str = "text-embedding-ada-002") -> int:
+def num_tokens_from_string(string: str, model_name: str = "text-embedding-3-large") -> int:
     encoding = tiktoken.encoding_for_model(model_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
@@ -34,7 +34,7 @@ def chunk_content(content: str, max_tokens: int = 5000) -> list[str]:
 
 def get_embedding(text: str) -> list[float]:
     response = client.embeddings.create(
-        model="text-embedding-ada-002",
+        model="text-embedding-3-large",
         input=text,
         encoding_format="float"
     )
