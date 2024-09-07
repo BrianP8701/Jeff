@@ -5,20 +5,16 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import base64
 from dotenv import load_dotenv
-from pydantic import BaseModel
 from typing import List, Dict
 from datetime import datetime, timedelta
 import webbrowser
+from server.types.email import Email
 
 load_dotenv()
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
 
-class Email(BaseModel):
-    sender: str
-    subject: str
-    body: str
-    message_id: str
+
 
 def get_credentials():
     creds = None

@@ -16,22 +16,25 @@ def test_email_crud():
         "message_id": "test123",
         "embedding": np.random.rand(1536).tolist()  # Example embedding
     }
-    email = create_email(email_data)
+    email, embedding = create_email(email_data)
     print(f"Created email: {email.id}")
 
     # Read
-    read_email_obj = read_email(email.id)
+    read_email_obj, read_embedding = read_email(email.id)
     print(f"Read email: {read_email_obj.subject}")
-    print(f"Email embedding: {read_email_obj.embedding[:5]}...")  # Print first 5 elements
+    if read_embedding:
+        print(f"Email embedding: {read_embedding[:5]}...")  # Print first 5 elements
+    else:
+        print("No embedding found for this email.")
 
     # Update
     update_data = {"subject": "Updated Test Email"}
-    updated_email = update_email(email.id, update_data)
+    updated_email, updated_embedding = update_email(email.id, update_data)
     print(f"Updated email subject: {updated_email.subject}")
 
     # Delete
-    # deleted_email = delete_email(email.id)
-    # print(f"Deleted email: {deleted_email.id}")
+    deleted_email = delete_email(email.id)
+    print(f"Deleted email: {deleted_email.id}")
 
 def test_file_crud():
     print("\nTesting File CRUD operations:")
@@ -88,6 +91,8 @@ def test_link_crud():
 if __name__ == "__main__":
     db = Database()
     db.clear_all_tables()
+    db.reset_tables()
+    
     test_email_crud()
     test_file_crud()
     test_link_crud()

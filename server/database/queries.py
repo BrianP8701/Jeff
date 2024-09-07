@@ -1,27 +1,54 @@
 from .db import Database
+from .tables import Email, File, Link, Embedding, ContentType
 
 db = Database()
 
 # Email CRUD operations
 def create_email(email: dict):
-    if 'embedding_id' in email:
-        del email['embedding_id']
-    return db.create('emails', email)
+    embedding = email.pop('embedding', None)
+    email_obj = db.create('emails', email)
+    
+    if embedding:
+        embedding_data = {
+            'embedding': embedding,
+            'content_type': ContentType.EMAIL,
+            'email_id': email_obj.id
+        }
+        db.create('embeddings', embedding_data)
+    
+    return email_obj, embedding
 
 def read_email(email_id: int):
-    return db.read('emails', email_id)
+    email = db.read('emails', email_id)
+    embedding_obj = db.session.query(Embedding).filter_by(email_id=email_id).first()
+    embedding = embedding_obj.embedding if embedding_obj else None
+    return email, embedding
 
 def update_email(email_id: int, email: dict):
-    return db.update('emails', email_id, email)
+    updated_email = db.update('emails', email_id, email)
+    embedding_obj = db.session.query(Embedding).filter_by(email_id=email_id).first()
+    embedding = embedding_obj.embedding if embedding_obj else None
+    return updated_email, embedding
 
 def delete_email(email_id: int):
-    return db.delete('emails', email_id)
+    db.session.query(Embedding).filter_by(email_id=email_id).delete()
+    deleted_email = db.delete('emails', email_id)
+    return deleted_email
 
 # File CRUD operations
 def create_file(file: dict):
-    if 'embedding_id' in file:
-        del file['embedding_id']
-    return db.create('files', file)
+    embedding = file.pop('embedding', None)
+    file_obj = db.create('files', file)
+    
+    if embedding:
+        embedding_data = {
+            'embedding': embedding,
+            'content_type': ContentType.FILE,
+            'file_id': file_obj.id
+        }
+        db.create('embeddings', embedding_data)
+    
+    return file_obj
 
 def read_file(file_id: int):
     return db.read('files', file_id)
@@ -34,9 +61,18 @@ def delete_file(file_id: int):
 
 # Link CRUD operations
 def create_link(link: dict):
-    if 'embedding_id' in link:
-        del link['embedding_id']
-    return db.create('links', link)
+    embedding = link.pop('embedding', None)
+    link_obj = db.create('links', link)
+    
+    if embedding:
+        embedding_data = {
+            'embedding': embedding,
+            'content_type': ContentType.LINK,
+            'link_id': link_obj.id
+        }
+        db.create('embeddings', embedding_data)
+    
+    return link_obj
 
 def read_link(link_id: int):
     return db.read('links', link_id)

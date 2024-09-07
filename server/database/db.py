@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from .tables import Base, Email, File, Link
+from .tables import Base, Email, File, Link, Embedding  # Add Embedding to the import
 import os
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import Float
@@ -64,19 +64,26 @@ class Database:
         return db_object
 
     def _get_model(self, table_name: str):
-        if table_name == 'emails':
-            return Email
-        elif table_name == 'files':
-            return File
-        elif table_name == 'links':
-            return Link
-        else:
+        models = {
+            'emails': Email,
+            'files': File,
+            'links': Link,
+            'embeddings': Embedding  # Add this line
+        }
+        model = models.get(table_name)
+        if model is None:
             raise ValueError(f"Unknown table name: {table_name}")
-          
+        return model
+
     def clear_all_tables(self):
+        # First, delete all embeddings
+        self.session.query(Embedding).delete()
+        
+        # Then delete emails, files, and links
         self.session.query(Email).delete()
         self.session.query(File).delete()
         self.session.query(Link).delete()
+        
         self.session.commit()
 
     def reset_tables(self):
