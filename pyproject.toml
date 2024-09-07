@@ -18,6 +18,11 @@ sqlalchemy = "^2.0.34"
 numpy = "^2.1.1"
 psycopg2-binary = "^2.9.9"
 openai = "^1.44.0"
+markdown = "^3.7"
+pytesseract = "^0.3.13"
+pillow = "^10.4.0"
+pypdf2 = "^3.0.1"
+tiktoken = "^0.7.0"
 
 [build-system]
 requires = ["poetry-core"]

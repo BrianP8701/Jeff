@@ -9,6 +9,8 @@ from typing import List, Dict
 from datetime import datetime, timedelta
 import webbrowser
 from server.types.email import Email
+from server.database.queries import create_email
+from server.embeddings.embed import get_embedding, chunk_content
 
 load_dotenv()
 
@@ -109,3 +111,27 @@ if __name__ == "__main__":
                 open_gmail_message(email.message_id)
             
             print("---")
+
+def process_and_store_email(email: Email):
+    # Create embedding from email content
+    content_to_embed = f"{email.subject}\n\n{email.body}"
+    chunks = chunk_content(content_to_embed)
+    
+    stored_emails = []
+    for i, chunk in enumerate(chunks):
+        embedding = get_embedding(chunk)
+
+        # Prepare email data for database
+        email_data = {
+            "sender": email.sender,
+            "subject": f"{email.subject} (chunk {i+1}/{len(chunks)})",
+            "body": chunk,
+            "message_id": f"{email.message_id}_{i+1}",
+            "embedding": embedding
+        }
+
+        # Store email in database
+        stored_email = create_email(email_data)
+        stored_emails.append(stored_email)
+    
+    return stored_emails

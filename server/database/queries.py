@@ -82,3 +82,9 @@ def update_link(link_id: int, link: dict):
 
 def delete_link(link_id: int):
     return db.delete('links', link_id)
+
+def get_file_by_path_and_content(file_path: str, content: str):
+    return db.session.query(File).filter_by(path=file_path, content=content).first()
+
+def get_file_by_content_hash(content_hash: str):
+    return db.session.query(File).filter_by(content_hash=content_hash).first()

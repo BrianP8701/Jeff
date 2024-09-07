@@ -29,6 +29,7 @@ class File(Base):
     name = Column(String(255), nullable=False)
     path = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
+    content_hash = Column(String(64), nullable=False, index=True)  # Add this line
     embedding = relationship("Embedding", back_populates="file", cascade="all, delete-orphan")
 
 class Link(Base):
