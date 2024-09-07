@@ -12,7 +12,6 @@ def get_embedding(text: str) -> list[float]:
         input=text,
         encoding_format="float"
     )
-    print(response)
     return response.data[0].embedding
 
 if __name__ == "__main__":

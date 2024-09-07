@@ -1,5 +1,4 @@
-from server.data_loaders.gmail import read_emails
-from server.email import process_and_store_email
+from server.data_loaders.gmail import read_emails, process_and_store_email
 from server.database.db import Database
 
 def ingest_recent_emails(days: int = 7):
@@ -23,3 +22,4 @@ def ingest_recent_emails(days: int = 7):
 
 if __name__ == "__main__":
     ingest_recent_emails()
+x
