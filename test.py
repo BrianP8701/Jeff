@@ -43,7 +43,8 @@ def test_file_crud():
         "name": "test.txt",
         "path": "/path/to/test.txt",
         "content": "This is a test file content.",
-        "embedding": np.random.rand(1536).tolist()  # Example embedding
+        "embedding": np.random.rand(1536).tolist(),  # Example embedding
+        "content_hash": "test123"
     }
     file = create_file(file_data)
     print(f"Created file: {file.id}")
