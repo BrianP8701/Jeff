@@ -18,7 +18,7 @@ class Database:
     def _init(self):
         # PostgreSQL connection string
         db_url = f"postgresql://jeff_user:jeff_password@localhost:5434/jeff_db"
-        self.engine = create_engine(db_url, echo=True, future=True)
+        self.engine = create_engine(db_url, future=True)
         Base.metadata.create_all(self.engine)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self.session = self.SessionLocal()

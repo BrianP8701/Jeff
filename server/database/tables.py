@@ -19,18 +19,18 @@ class Email(Base):
     __tablename__ = 'emails'
 
     id = Column(Integer, primary_key=True)
-    sender = Column(String(255), nullable=False)
-    subject = Column(String(255), nullable=False)
+    sender = Column(String, nullable=False)
+    subject = Column(String, nullable=False)
     body = Column(Text, nullable=False)
-    message_id = Column(String(255), unique=True, nullable=False)
+    message_id = Column(String, unique=True, nullable=False)
     embedding = relationship("Embedding", back_populates="email", cascade="all, delete-orphan")
 
 class File(Base):
     __tablename__ = 'files'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    path = Column(String(255), nullable=False)
+    name = Column(String, nullable=False)
+    path = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     content_hash = Column(String(64), nullable=False, index=True)  # Add this line
     embedding = relationship("Embedding", back_populates="file", cascade="all, delete-orphan")
@@ -39,8 +39,8 @@ class Link(Base):
     __tablename__ = 'links'
 
     id = Column(Integer, primary_key=True)
-    url = Column(String(255), nullable=False)
-    title = Column(String(255), nullable=False)
+    url = Column(String, nullable=False)
+    title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     embedding = relationship("Embedding", back_populates="link", cascade="all, delete-orphan")
 
