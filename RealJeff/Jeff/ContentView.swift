@@ -4,7 +4,6 @@
 //
 //  Created by Ayush Goel on 9/7/24.
 //
-
 import SwiftUI
 import Network
 import AppKit
@@ -21,7 +20,10 @@ struct SearchItem: Codable, Identifiable, Equatable {
     }
 }
 
-typealias SearchResponse = [SearchItem]
+struct SearchResponse: Codable {
+    let results: [SearchItem]
+    let answer_summary: String?
+}
 
 struct SearchRequest: Codable {
     let query: String
@@ -100,6 +102,7 @@ struct CustomTextField: NSViewRepresentable {
 struct ContentView: View {
     @State private var searchText = ""
     @State var searchResults: [SearchItem] = []
+    @State var answerSummary: String? = nil // Change this line
     @State private var isSearching = false
     @State private var isServerReachable = false
     @State private var searchTask: DispatchWorkItem?
@@ -112,6 +115,15 @@ struct ContentView: View {
                 .onChange(of: searchText) { _ in
                     debouncedSearch()
                 }
+            
+            if let summary = answerSummary {
+                Text(summary)
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    .padding(.top, 10)
+            }
             
             if !searchResults.isEmpty {
                 List(searchResults) { item in
@@ -232,8 +244,11 @@ struct ContentView: View {
             do {
                 let decodedResponse = try JSONDecoder().decode(SearchResponse.self, from: data)
                 DispatchQueue.main.async {
-                    self.searchResults = decodedResponse
+                    self.searchResults = decodedResponse.results
+                    self.answerSummary = decodedResponse.answer_summary
                     print("Search results updated: \(self.searchResults)")
+                    print("Answer summary: \(self.answerSummary ?? "None")")
+                    NotificationCenter.default.post(name: NSNotification.Name("SearchResultsChanged"), object: nil)
                 }
             } catch {
                 print("Decoding error: \(error)")

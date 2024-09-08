@@ -97,13 +97,11 @@ class Database:
     def similarity_search(self, query: str, limit: int = 5):
         query_embedding = get_embedding(query)
 
-        print("\n\nquery_embedding: " + str(query_embedding) + "\n\n")
         results = (
             self.session.query(
                 Embedding.id,
                 Embedding.content_type,
                 func.coalesce(Email.message_id, File.path, Link.url).label("identifier"),
-                func.coalesce(Email.body, File.content, Link.content).label("content"),
                 func.coalesce(Email.subject, File.name, Link.title).label("title"),
                 (Embedding.embedding.cosine_distance(query_embedding)).label("distance")
             )
@@ -115,29 +113,13 @@ class Database:
             .all()
         )
 
-        print("\n\nresults in db.py: " + str(results) + "\n\n")
         search_results = []
-        for embedding, email, file, link, distance in results:
-            if embedding.content_type == ContentType.EMAIL and email:
-                search_results.append({
-                    "content_type": ContentType.EMAIL,
-                    "source": email.message_id,
-                    "title": email.subject,
-                    "distance": distance
-                })
-            elif embedding.content_type == ContentType.FILE and file:
-                search_results.append({
-                    "content_type": ContentType.FILE,
-                    "source": file.path,
-                    "title": file.name,
-                    "distance": distance
-                })
-            elif embedding.content_type == ContentType.LINK and link:
-                search_results.append({
-                    "content_type": ContentType.LINK,
-                    "source": link.url,
-                    "title": link.title,
-                    "distance": distance
-                })
+        for embedding_id, content_type, identifier, title, distance in results:
+            search_results.append({
+                "content_type": content_type,
+                "source": identifier,
+                "title": title,
+                "distance": distance
+            })
         
         return search_results

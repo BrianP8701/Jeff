@@ -1,4 +1,4 @@
-#    uvicorn server.app:app --host 0.0.0.0 --port 8000
+#    uvicorn server.app:app --host 0.0.0.0 --port 8000 --reload
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,6 +44,10 @@ class SearchResult(BaseModel):
     title: str
     distance: float
 
+class SearchResponse(BaseModel):
+    results: List[SearchResult]
+    answer_summary: Optional[str] = None
+
 class SearchRequest(BaseModel):
     query: str
     limit: Optional[int] = 5
@@ -66,8 +70,8 @@ async def search_contents(request: SearchContentsRequest):
     result = get_contents_for_url(request.url)
     return {"status": "success", "message": result}
 
-@app.get("/search", response_model=List[SearchResult])
-@app.post("/search", response_model=List[SearchResult])
+@app.get("/search", response_model=SearchResponse)
+@app.post("/search", response_model=SearchResponse)
 async def search(request: SearchRequest):
     logger.info(f"Search endpoint accessed with query: {request.query}")
     
@@ -99,8 +103,10 @@ async def search(request: SearchRequest):
     
     answer_summary = generate_answer_summary(request.query, summary_context_string)
     
+    print("\n\nanswer_summary: " + str(answer_summary) + "\n\n")
+    
     logger.info(f"Search results: {search_results}")
-    return search_results
+    return SearchResponse(results=search_results, answer_summary=answer_summary)
 
 # Add this at the end of the file
 use_route_names_as_operation_ids(app)

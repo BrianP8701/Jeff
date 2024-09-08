@@ -65,7 +65,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let hasResults = !contentView.rootView.searchResults.isEmpty
-        let newHeight: CGFloat = hasResults ? 460 : 60 // 60 for search bar + 400 for results
+        let hasAnswerSummary = contentView.rootView.answerSummary != nil
+        
+        var newHeight: CGFloat = 60 // Base height for search bar
+        if hasAnswerSummary {
+            newHeight += 100 // Estimated height for answer summary
+        }
+        if hasResults {
+            newHeight += min(CGFloat(contentView.rootView.searchResults.count) * 60, 400)
+        }
         
         window.setFrame(NSRect(x: window.frame.origin.x,
                                y: window.frame.origin.y + (window.frame.height - newHeight),
