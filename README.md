@@ -17,7 +17,7 @@ Create a `.env` file following the `.env.example`. You will need your Gmail API 
 Quit Google Chrome if you are currently using it and run `ingestion.py` to read from your chrome history and build the indexing.
 
 The ingestion script should also handle your emails and local file system (give permissions if needed).
-
+git
 Run the fast api server (located in `server/app.py`) using `uvicorn server.app:app --host 0.0.0.0 --port 8000 --reload`.
 
 Open up the Xcode project, and fill in the necessary signing and certificates. Then run the project and give permissions to open up files. 
