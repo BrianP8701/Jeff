@@ -39,7 +39,9 @@ def ingest_files(folder_path: str):
 
 def ingest_browser_history():
     try:
+        print("Getting history")
         history_entries = get_history()
+        print(history_entries)
         process_and_store_history(history_entries)
     except Exception as e:
         print(f"Error during history ingestion: {e}")
@@ -52,7 +54,7 @@ if __name__ == "__main__":
     ingest_recent_emails()
     
     # Ingest files
-    # ingest_files(folder_path)
+    ingest_files(folder_path)
 
     # Ingest browser history
     ingest_browser_history()

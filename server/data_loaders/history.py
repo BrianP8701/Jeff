@@ -1,11 +1,16 @@
 import sqlite3
 import time
+import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from server.database.queries import create_link, get_link_by_url
 from server.embeddings.embed import get_embedding, chunk_content
 from server.apis.exa_client import get_contents_for_url
 
-def get_history(base_name = 'brianprzezdziecki'):
+load_dotenv()
+
+def get_history():
+    base_name = os.getenv("BASE_NAME")
       # Connect to the SQLite database (or create it if it doesn't exist)
     conn = sqlite3.connect(f'/Users/{base_name}/Library/Application Support/Google/Chrome/Default/History')
 
@@ -33,16 +38,9 @@ def get_history(base_name = 'brianprzezdziecki'):
     # Get the current tim
     cur.execute(f'''SELECT * FROM urls WHERE last_visit_time >= {nanoseconds} AND last_visit_time <= {today_nanoseconds} ORDER BY last_visit_time DESC''')
 
-    # Example: Insert data
-    # cur.execute("INSERT INTO users (name, age) VALUES ('Alice', 30)")
-
-    # Commit the changes
-    # conn.commit()
-
     # Query the data
     # cur.execute("SELECT * FROM users")
     rows = cur.fetchall()
-
     # Close the connection
     conn.close()
     return rows
