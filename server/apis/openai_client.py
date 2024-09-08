@@ -5,7 +5,7 @@ load_dotenv()
 
 client = OpenAI()
 
-def generate_answer_summary(question, content, model='gpt-4o'):
+def generate_answer_summary(question, content, model='gpt-4o-mini'):
     # Step 1: send the conversation and available functions to the model
     messages = [
         {
