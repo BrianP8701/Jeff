@@ -137,7 +137,7 @@ def process_and_store_email(email: Email) -> List[Dict]:
             "sender": email.sender,
             "subject": f"{email.subject} (chunk {i+1}/{len(chunks)})",
             "body": chunk,
-            "message_id": f"{email.message_id}_{i+1}",
+            "message_id": f"{email.message_id}",
             "embedding": embedding
         }
 

@@ -88,7 +88,7 @@ async def search(request: SearchRequest):
         title = result.get('title', '')
         
         if result['content_type'] == ContentType.EMAIL:
-            source = f"https://mail.google.com/mail/u/0/#search/rfc822msgid:{source}"
+            source = f"https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox/{source}"
         
         search_results.append(SearchResult(
             type=item_type,

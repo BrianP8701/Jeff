@@ -283,7 +283,7 @@ struct ContentView: View {
         if item.type == "FILE" {
             openFile(item.source)
         } else if item.type == "URL" {
-            openURL(item.source)
+            openGmailURL(item.source)
         }
     }
     
@@ -297,8 +297,21 @@ struct ContentView: View {
         }
     }
     
-    func openURL(_ urlString: String) {
-        if let url = URL(string: urlString) {
+    func openGmailURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        // Extract the message ID from the URL
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let messageID = components?.fragment?.replacingOccurrences(of: "inbox/", with: "")
+        
+        // Construct the direct message URL
+        if let messageID = messageID {
+            let directMessageURL = "https://mail.google.com/mail/u/0/#inbox/" + messageID
+            if let finalURL = URL(string: directMessageURL) {
+                NSWorkspace.shared.open(finalURL)
+            }
+        } else {
+            // Fallback to opening the original URL if we can't extract the message ID
             NSWorkspace.shared.open(url)
         }
     }

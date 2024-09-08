@@ -55,4 +55,4 @@ if __name__ == "__main__":
     # ingest_files(folder_path)
 
     # Ingest browser history
-    ingest_browser_history()
+    # ingest_browser_history()
