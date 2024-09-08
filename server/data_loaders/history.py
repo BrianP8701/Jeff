@@ -12,12 +12,12 @@ def get_history(base_name = 'brianprzezdziecki'):
     # Create a cursor object
     cur = conn.cursor()
 
-    def datetime_to_nanoseconds(dt):
+    def datetime_to_nanoseconds(dt, weeks=1):
         # WebKit-like epoch starts at January 1, 1601
         epoch_start = datetime(1601, 1, 1)
         
         # Get the difference between the datetime and the epoch start
-        one_week_ago = dt - timedelta(weeks=1)
+        one_week_ago = dt - timedelta(weeks)
         delta = one_week_ago - epoch_start
         
         
@@ -25,11 +25,13 @@ def get_history(base_name = 'brianprzezdziecki'):
         return int(delta.total_seconds() * 1e6)
 
     # Example usage
-    dt = datetime.utcnow()
-    nanoseconds = datetime_to_nanoseconds(dt)
+    dt = datetime(2024, 8, 22)
+    nanoseconds = datetime_to_nanoseconds(dt, weeks=2)
+    today_nanoseconds = datetime_to_nanoseconds(datetime(2024, 8, 22))
+    print(nanoseconds, today_nanoseconds)
 
     # Get the current tim
-    cur.execute(f'''SELECT * FROM urls WHERE last_visit_time >= {nanoseconds} ORDER BY last_visit_time DESC''')
+    cur.execute(f'''SELECT * FROM urls WHERE last_visit_time >= {nanoseconds} AND last_visit_time <= {today_nanoseconds} ORDER BY last_visit_time DESC''')
 
     # Example: Insert data
     # cur.execute("INSERT INTO users (name, age) VALUES ('Alice', 30)")
