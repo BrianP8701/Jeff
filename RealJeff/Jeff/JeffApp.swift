@@ -6,21 +6,13 @@ struct JeffApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        Settings {
+            EmptyView()
         }
     }
 }
 
-struct SpotlightApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
-}
+// Remove the SpotlightApp struct as it's not needed
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var hotKey: HotKey?
@@ -41,8 +33,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func setupSearchWindow() {
         let contentView = ContentView()
         searchWindow = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 600, height: 44),
-            styleMask: [.nonactivatingPanel, .titled, .resizable, .utilityWindow],
+            contentRect: NSRect(x: 0, y: 0, width: 800, height: 120),
+            styleMask: [.borderless, .nonactivatingPanel, .titled, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
@@ -53,6 +45,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         searchWindow?.backgroundColor = .clear
         searchWindow?.isOpaque = false
         searchWindow?.hasShadow = true
+        searchWindow?.isMovableByWindowBackground = true
+        searchWindow?.titlebarAppearsTransparent = true
+        searchWindow?.titleVisibility = .hidden
         
         // Observe changes in the ContentView's searchResults
         NotificationCenter.default.addObserver(self, selector: #selector(adjustWindowSize), name: NSNotification.Name("SearchResultsChanged"), object: nil)
@@ -70,11 +65,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let hasResults = !contentView.rootView.searchResults.isEmpty
-        let newHeight: CGFloat = hasResults ? 264 : 44 // 44 for search bar + 220 for results
+        let newHeight: CGFloat = hasResults ? 460 : 60 // 60 for search bar + 400 for results
         
         window.setFrame(NSRect(x: window.frame.origin.x,
                                y: window.frame.origin.y + (window.frame.height - newHeight),
-                               width: 600,
+                               width: 800,
                                height: newHeight),
                         display: true,
                         animate: true)
@@ -84,7 +79,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let window = searchWindow {
             if window.isVisible {
                 window.orderOut(nil)
+                NSApp.hide(nil)
             } else {
+                NSApp.activate(ignoringOtherApps: true)
                 window.makeKeyAndOrderFront(nil)
             }
         }

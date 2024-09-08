@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Network
+import AppKit
 
 struct SearchItem: Codable, Identifiable, Equatable {
     let type: String
@@ -26,42 +27,127 @@ struct SearchRequest: Codable {
     let limit: Int
 }
 
+struct CustomTextFieldStyle: TextFieldStyle {
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .background(Color(NSColor.windowBackgroundColor))
+            .cornerRadius(15)
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color.clear, lineWidth: 0)
+            )
+    }
+}
+
+struct CustomTextField: NSViewRepresentable {
+    @Binding var text: String
+    var onCommit: () -> Void
+
+    func makeNSView(context: Context) -> NSTextField {
+        let textField = NSTextField()
+        textField.isEditable = true
+        textField.isBordered = false
+        textField.isBezeled = false
+        textField.drawsBackground = false
+        textField.focusRingType = .none
+        textField.font = .systemFont(ofSize: 24, weight: .regular)
+        textField.textColor = .white
+        textField.placeholderString = "Search with Jeff"
+        textField.placeholderAttributedString = NSAttributedString(
+            string: "Search with Jeff",
+            attributes: [
+                .foregroundColor: NSColor.placeholderTextColor,
+                .font: NSFont.systemFont(ofSize: 24, weight: .regular)
+            ]
+        )
+        textField.cell?.wraps = false
+        textField.cell?.isScrollable = true
+        textField.delegate = context.coordinator
+        return textField
+    }
+
+    func updateNSView(_ nsView: NSTextField, context: Context) {
+        nsView.stringValue = text
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: CustomTextField
+
+        init(_ parent: CustomTextField) {
+            self.parent = parent
+        }
+
+        func controlTextDidChange(_ obj: Notification) {
+            guard let textField = obj.object as? NSTextField else { return }
+            parent.text = textField.stringValue
+        }
+
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            if commandSelector == #selector(NSResponder.insertNewline(_:)) {
+                parent.onCommit()
+                return true
+            }
+            return false
+        }
+    }
+}
+
 struct ContentView: View {
     @State private var searchText = ""
     @State var searchResults: [SearchItem] = []
     @State private var isSearching = false
     @State private var isServerReachable = false
+    @State private var searchTask: DispatchWorkItem?
     
     var body: some View {
         VStack(spacing: 0) {
-            TextField("Search...", text: $searchText, onCommit: performSearch)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(5)
+            CustomTextField(text: $searchText, onCommit: performSearch)
+                .frame(height: 60)
+                .padding(.horizontal, 15)
                 .onChange(of: searchText) { _ in
-                    performSearch()
+                    debouncedSearch()
                 }
             
             if !searchResults.isEmpty {
                 List(searchResults) { item in
                     HStack {
                         Image(systemName: item.type == "FILE" ? "doc" : "link")
+                            .font(.system(size: 20))
                         Text(item.value)
+                            .font(.system(size: 18))
                     }
+                    .padding(.vertical, 5)
                     .onTapGesture {
                         handleItemSelection(item)
                     }
                 }
-                .frame(height: min(CGFloat(searchResults.count) * 44, 220))
+                .frame(height: min(CGFloat(searchResults.count) * 60, 400))
             }
         }
-        .frame(width: 600)
+        .frame(width: 800)
         .background(Color(NSColor.windowBackgroundColor))
-        .cornerRadius(10)
-        .shadow(radius: 10)
+        .cornerRadius(15)
+        .shadow(radius: 15)
         .edgesIgnoringSafeArea(.all)
         .onAppear {
             checkServerReachability()
         }
+    }
+    
+    func debouncedSearch() {
+        searchTask?.cancel()
+        
+        let task = DispatchWorkItem {
+            self.performSearch()
+        }
+        
+        searchTask = task
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: task)
     }
     
     func checkServerReachability() {
