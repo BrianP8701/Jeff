@@ -74,7 +74,7 @@ def process_files(folder_path: str):
                         
                         file_data = {
                             "name": f"{file}_chunk_{i+1}",
-                            "path": file_path,
+                            "path": os.path.abspath(file_path),  # Use absolute path
                             "content": chunk,
                             "content_hash": content_hash,
                             "embedding": embedding

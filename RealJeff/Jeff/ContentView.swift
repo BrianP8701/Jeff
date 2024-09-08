@@ -106,7 +106,7 @@ struct ContentView: View {
     @State private var isSearching = false
     @State private var isServerReachable = false
     @State private var searchTask: DispatchWorkItem?
-    
+
     var body: some View {
         VStack(spacing: 0) {
             CustomTextField(text: $searchText, onCommit: performSearch)
@@ -115,7 +115,7 @@ struct ContentView: View {
                 .onChange(of: searchText) { _ in
                     debouncedSearch()
                 }
-            
+
             if let summary = answerSummary {
                 Text(summary)
                     .padding()
@@ -124,7 +124,7 @@ struct ContentView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 20) // Add this line
             }
-            
+
             if !searchResults.isEmpty {
                 List(searchResults) { item in
                     HStack {
@@ -264,12 +264,14 @@ struct ContentView: View {
         } else if item.type == "URL" {
             openURL(item.source)
         }
+        
+        // Close the window after selection
+        NSApp.keyWindow?.close()
     }
     
     func openFile(_ path: String) {
-        if let url = URL(string: path) {
-            NSWorkspace.shared.open(url)
-        }
+        let url = URL(fileURLWithPath: path)
+        NSWorkspace.shared.open(url)
     }
     
     func openURL(_ urlString: String) {

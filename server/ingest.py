@@ -49,10 +49,10 @@ if __name__ == "__main__":
     db = Database()
     
     # Ingest emails
-    ingest_recent_emails()
+    # ingest_recent_emails()
     
     # Ingest files
     ingest_files(folder_path)
 
     # Ingest browser history
-    ingest_browser_history()
+    # ingest_browser_history()
