@@ -32,13 +32,6 @@ class ItemType(str, Enum):
     FILE = "FILE"
     URL = "URL"
 
-class SearchItem(BaseModel):
-    type: ItemType
-    value: str
-
-class SearchResponse(BaseModel):
-    items: List[SearchItem]
-
 class EmailOpenRequest(BaseModel):
     message_id: str
 
@@ -47,7 +40,8 @@ class SearchContentsRequest(BaseModel):
 
 class SearchResult(BaseModel):
     type: ItemType
-    value: str
+    source: str
+    title: str
     distance: float
 
 class SearchRequest(BaseModel):
@@ -82,22 +76,30 @@ async def search(request: SearchRequest):
     
     summary_context_string = ""
     search_results = []
+    print("\n\nresults: " + str(results) + "\n\n")
     for result in results:
-        item_type = ItemType.FILE if result.content_type == ContentType.FILE else ItemType.URL
-        value = result.identifier
-        summary_context_string += "\n \n" + result.content
+        item_type = ItemType.FILE if result['content_type'] == ContentType.FILE else ItemType.URL
+        source = result['source']
+        title = ""
         
-        if result.content_type == ContentType.EMAIL:
-            value = f"https://mail.google.com/mail/u/0/#search/rfc822msgid:{value}"
+        if result['content_type'] == ContentType.EMAIL:
+            source = f"https://mail.google.com/mail/u/0/#search/rfc822msgid:{source}"
+            title = result.get('title', '')
+        elif result['content_type'] == ContentType.FILE:
+            title = result.get('title', '')
+        elif result['content_type'] == ContentType.LINK:
+            title = result.get('title', '')
         
         search_results.append(SearchResult(
             type=item_type,
-            value=value,
-            distance=result.distance
+            source=source,
+            title=title,
+            distance=result['distance']
         ))
     
     answer_summary = generate_answer_summary(request.query, summary_context_string)
     
+    logger.info(f"Search results: {search_results}")
     return search_results
 
 # Add this at the end of the file

@@ -11,12 +11,13 @@ import AppKit
 
 struct SearchItem: Codable, Identifiable, Equatable {
     let type: String
-    let value: String
+    let source: String
+    let title: String
     let distance: Float
-    var id: String { value }
+    var id: String { source }
     
     static func == (lhs: SearchItem, rhs: SearchItem) -> Bool {
-        return lhs.type == rhs.type && lhs.value == rhs.value && lhs.distance == rhs.distance
+        return lhs.type == rhs.type && lhs.source == rhs.source && lhs.title == rhs.title && lhs.distance == rhs.distance
     }
 }
 
@@ -117,8 +118,16 @@ struct ContentView: View {
                     HStack {
                         Image(systemName: item.type == "FILE" ? "doc" : "link")
                             .font(.system(size: 20))
-                        Text(item.value)
-                            .font(.system(size: 18))
+                        VStack(alignment: .leading) {
+                            Text(item.title)
+                                .font(.system(size: 18))
+                            Text(item.source)
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                            Text(String(format: "Distance: %.2f", item.distance))
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
                     }
                     .padding(.vertical, 5)
                     .onTapGesture {
@@ -180,7 +189,7 @@ struct ContentView: View {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
+
         do {
             let jsonData = try JSONEncoder().encode(searchRequest)
             request.httpBody = jsonData
@@ -236,9 +245,9 @@ struct ContentView: View {
     
     func handleItemSelection(_ item: SearchItem) {
         if item.type == "FILE" {
-            openFile(item.value)
+            openFile(item.source)
         } else if item.type == "URL" {
-            openURL(item.value)
+            openURL(item.source)
         }
     }
     

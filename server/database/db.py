@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy import func
 from pgvector.sqlalchemy import Vector
 from server.embeddings.embed import get_embedding
+from .tables import SearchResult, ContentType
 
 class Database:
     _instance = None
@@ -95,7 +96,8 @@ class Database:
 
     def similarity_search(self, query: str, limit: int = 5):
         query_embedding = get_embedding(query)
-        
+
+        print("\n\nquery_embedding: " + str(query_embedding) + "\n\n")
         results = (
             self.session.query(
                 Embedding.id,
@@ -112,5 +114,30 @@ class Database:
             .limit(limit)
             .all()
         )
+
+        print("\n\nresults in db.py: " + str(results) + "\n\n")
+        search_results = []
+        for embedding, email, file, link, distance in results:
+            if embedding.content_type == ContentType.EMAIL and email:
+                search_results.append({
+                    "content_type": ContentType.EMAIL,
+                    "source": email.message_id,
+                    "title": email.subject,
+                    "distance": distance
+                })
+            elif embedding.content_type == ContentType.FILE and file:
+                search_results.append({
+                    "content_type": ContentType.FILE,
+                    "source": file.path,
+                    "title": file.name,
+                    "distance": distance
+                })
+            elif embedding.content_type == ContentType.LINK and link:
+                search_results.append({
+                    "content_type": ContentType.LINK,
+                    "source": link.url,
+                    "title": link.title,
+                    "distance": distance
+                })
         
-        return results
+        return search_results

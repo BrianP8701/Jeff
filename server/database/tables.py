@@ -55,3 +55,10 @@ class Embedding(Base):
     email = relationship("Email", back_populates="embedding")
     file = relationship("File", back_populates="embedding")
     link = relationship("Link", back_populates="embedding")
+
+class SearchResult:
+    def __init__(self, content_type, source, title, distance):
+        self.content_type = content_type
+        self.source = source
+        self.title = title
+        self.distance = distance
