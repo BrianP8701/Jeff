@@ -84,15 +84,11 @@ async def search(request: SearchRequest):
     for result in results:
         item_type = ItemType.FILE if result['content_type'] == ContentType.FILE else ItemType.URL
         source = result['source']
-        title = ""
+        summary_context_string += "\n\n" + result['content']
+        title = result.get('title', '')
         
         if result['content_type'] == ContentType.EMAIL:
             source = f"https://mail.google.com/mail/u/0/#search/rfc822msgid:{source}"
-            title = result.get('title', '')
-        elif result['content_type'] == ContentType.FILE:
-            title = result.get('title', '')
-        elif result['content_type'] == ContentType.LINK:
-            title = result.get('title', '')
         
         search_results.append(SearchResult(
             type=item_type,
@@ -102,8 +98,6 @@ async def search(request: SearchRequest):
         ))
     
     answer_summary = generate_answer_summary(request.query, summary_context_string)
-    
-    print("\n\nanswer_summary: " + str(answer_summary) + "\n\n")
     
     logger.info(f"Search results: {search_results}")
     return SearchResponse(results=search_results, answer_summary=answer_summary)

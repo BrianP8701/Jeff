@@ -103,6 +103,7 @@ class Database:
                 Embedding.content_type,
                 func.coalesce(Email.message_id, File.path, Link.url).label("identifier"),
                 func.coalesce(Email.subject, File.name, Link.title).label("title"),
+                func.coalesce(Email.body, File.content, Link.content).label("content"),
                 (Embedding.embedding.cosine_distance(query_embedding)).label("distance")
             )
             .outerjoin(Email, Embedding.email_id == Email.id)
@@ -114,11 +115,12 @@ class Database:
         )
 
         search_results = []
-        for embedding_id, content_type, identifier, title, distance in results:
+        for embedding_id, content_type, identifier, title, content, distance in results:
             search_results.append({
                 "content_type": content_type,
                 "source": identifier,
                 "title": title,
+                "content": content,
                 "distance": distance
             })
         
