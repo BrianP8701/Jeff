@@ -9,5 +9,7 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>This app needs access to the Documents folder to open and save files.</string>
 </dict>
 </plist>

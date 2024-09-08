@@ -47,6 +47,27 @@ struct CustomTextField: NSViewRepresentable {
     var onCommit: () -> Void
 
     func makeNSView(context: Context) -> NSTextField {
+        // Configure the open panel to select the file
+        let openPanel = NSOpenPanel()
+        let path = "/Users/yush"
+        openPanel.title = "Select a file to open"
+        openPanel.prompt = "Open"
+        openPanel.canChooseFiles = true
+        openPanel.canChooseDirectories = true
+        openPanel.allowsMultipleSelection = false
+        openPanel.directoryURL = URL(fileURLWithPath: path).deletingLastPathComponent() // Preselect folder
+        openPanel.nameFieldStringValue = URL(fileURLWithPath: path).lastPathComponent // Preselect file name
+
+        // Show the panel to the user
+        let response = openPanel.runModal()
+
+        if response == .OK, let selectedFileURL = openPanel.url {
+            // Now the app has permission to access the file
+            print("hello")
+        } else {
+            print("User canceled or no file selected")
+        }
+        
         let textField = NSTextField()
         textField.isEditable = true
         textField.isBordered = false
@@ -268,7 +289,11 @@ struct ContentView: View {
     
     func openFile(_ path: String) {
         if let url = URL(string: path) {
-            NSWorkspace.shared.open(url)
+            // let selectedFileURL = URL(fileURLWithPath: path).deletingLastPathComponent()
+            let fileURL = URL(fileURLWithPath: path)
+    
+            NSWorkspace.shared.open(fileURL)
+            
         }
     }
     

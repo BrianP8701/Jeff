@@ -96,6 +96,7 @@ async def search(request: SearchRequest):
             title=title,
             distance=result['distance']
         ))
+        print(source)
     
     answer_summary = generate_answer_summary(request.query, summary_context_string)
     
