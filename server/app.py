@@ -3,11 +3,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from pydantic import BaseModel
-from .data_loaders.gmail import open_gmail_message
-from .apis.exa_client import get_contents_for_url
 from enum import Enum
 from typing import List, Optional
 import logging
@@ -31,13 +29,6 @@ def use_route_names_as_operation_ids(app: FastAPI) -> None:
 class ItemType(str, Enum):
     FILE = "FILE"
     URL = "URL"
-
-class EmailOpenRequest(BaseModel):
-    message_id: str
-
-class SearchContentsRequest(BaseModel):
-    url: str
-
 class SearchResult(BaseModel):
     type: ItemType
     source: str
@@ -54,23 +45,6 @@ class SearchRequest(BaseModel):
 
 app = FastAPI()
 
-@app.get("/")
-async def root():
-    logger.info("Root endpoint accessed")
-    return {"message": "Server is running"}
-
-@app.post("/open-email")
-async def open_email(request: EmailOpenRequest):
-    open_gmail_message(request.message_id)
-    return {"status": "success", "message": "Email opened in browser"}
-
-@app.post("/search-contents")
-async def search_contents(request: SearchContentsRequest):
-    print(request.url)
-    result = get_contents_for_url(request.url)
-    return {"status": "success", "message": result}
-
-@app.get("/search", response_model=SearchResponse)
 @app.post("/search", response_model=SearchResponse)
 async def search(request: SearchRequest):
     logger.info(f"Search endpoint accessed with query: {request.query}")
