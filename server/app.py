@@ -13,6 +13,7 @@ from typing import List, Optional
 import logging
 from server.database.db import Database
 from server.database.tables import ContentType
+from server.apis.openai_client import generate_answer_summary
 
 # Add this near the top of the file, after imports
 logging.basicConfig(level=logging.INFO)
@@ -79,10 +80,12 @@ async def search(request: SearchRequest):
     db = Database()
     results = db.similarity_search(request.query, request.limit)
     
+    summary_context_string = ""
     search_results = []
     for result in results:
         item_type = ItemType.FILE if result.content_type == ContentType.FILE else ItemType.URL
-        value = result.content_identifier
+        value = result.identifier
+        summary_context_string += "\n \n" + result.content
         
         if result.content_type == ContentType.EMAIL:
             value = f"https://mail.google.com/mail/u/0/#search/rfc822msgid:{value}"
@@ -92,6 +95,8 @@ async def search(request: SearchRequest):
             value=value,
             distance=result.distance
         ))
+    
+    answer_summary = generate_answer_summary(request.query, summary_context_string)
     
     return search_results
 

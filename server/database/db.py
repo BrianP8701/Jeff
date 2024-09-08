@@ -100,7 +100,9 @@ class Database:
             self.session.query(
                 Embedding.id,
                 Embedding.content_type,
-                func.coalesce(Email.message_id, File.path, Link.url).label("content_identifier"),
+                func.coalesce(Email.message_id, File.path, Link.url).label("identifier"),
+                func.coalesce(Email.body, File.content, Link.content).label("content"),
+                func.coalesce(Email.subject, File.name, Link.title).label("title"),
                 (Embedding.embedding.cosine_distance(query_embedding)).label("distance")
             )
             .outerjoin(Email, Embedding.email_id == Email.id)
