@@ -52,7 +52,7 @@ if __name__ == "__main__":
     ingest_recent_emails()
     
     # Ingest files
-    ingest_files(folder_path)
+    # ingest_files(folder_path)
 
     # Ingest browser history
     ingest_browser_history()
