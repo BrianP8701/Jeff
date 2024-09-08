@@ -16,13 +16,19 @@ load_dotenv()
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
 
-
+# Add this function at the beginning of the file
+def check_and_get_credentials():
+    creds = get_credentials()
+    if creds is None:
+        print("Please download the client_secret.json file and run the script again.")
+        return None
+    return creds
 
 def get_credentials():
     creds = None
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             try:
@@ -34,14 +40,19 @@ def get_credentials():
             flow = InstalledAppFlow.from_client_secrets_file(
                 'client_secret.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        
+
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
-    
+
     return creds
 
+
+
 def read_emails(days: int) -> List[Dict[str, List[Email]]]:
-    creds = get_credentials()
+    creds = check_and_get_credentials()
+    if creds is None:
+        return []
+
     service = build('gmail', 'v1', credentials=creds)
     email_threads = []
     
@@ -113,13 +124,13 @@ if __name__ == "__main__":
             print("---")
 
 def process_and_store_email(email: Email) -> List[Dict]:
-    # Create embedding from email content
-    content_to_embed = f"{email.subject}\n\n{email.body}"
-    chunks = chunk_content(content_to_embed)
-    
     stored_emails = []
+    chunks = chunk_content(email.body)
+    
     for i, chunk in enumerate(chunks):
-        embedding = get_embedding(chunk)
+        # Include subject and sender in the content to embed
+        content_to_embed = f"Subject: {email.subject}\nFrom: {email.sender}\n\n{chunk}"
+        embedding = get_embedding("Email subject: " + email.subject + "sender: " + email.sender + "content: " + content_to_embed)
 
         # Prepare email data for database
         email_data = {
