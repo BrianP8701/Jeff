@@ -122,7 +122,7 @@ struct ContentView: View {
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(10)
                     .padding(.horizontal)
-                    .padding(.top, 10)
+                    .padding(.bottom, 20) // Add this line
             }
             
             if !searchResults.isEmpty {
