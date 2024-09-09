@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["postgresqlExtensions"] // Enable the postgresqlExtensions. Currently in preview
+}
+
+datasource db {
+    provider   = "postgresql"
+    url        = env("DATABASE_URL")
+    extensions = [vector]
+}
+
+enum ContentType {
+    EMAIL
+    FILE
+    LINK
+}
+
+model Email {
+    id         String      @id @default(uuid()) @db.Uuid
+    sender     String
+    subject    String
+    body       String
+    messageId  String      @unique
+    embeddings Embedding[]
+}
+
+model File {
+    id          String      @id @default(uuid()) @db.Uuid
+    name        String
+    path        String
+    content     String
+    contentHash String      @db.VarChar(64)
+    embeddings  Embedding[]
+
+    @@index([contentHash])
+}
+
+model Link {
+    id         String      @id @default(uuid()) @db.Uuid
+    url        String
+    title      String
+    content    String
+    embeddings Embedding[]
+}
+
+model Embedding {
+    id          String      @id @default(uuid()) @db.Uuid
+    contentType ContentType
+    emailId     String?     @db.Uuid
+    fileId      String?     @db.Uuid
+    linkId      String?     @db.Uuid
+    file        File?       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+    email       Email?      @relation(fields: [emailId], references: [id])
+    link        Link?       @relation(fields: [linkId], references: [id], onDelete: Cascade)
+}
